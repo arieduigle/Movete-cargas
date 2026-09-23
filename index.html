@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#111111">
+<meta name="description" content="MOVETE! Seguimiento de cargas">
+<title>MOVETE! Seguimiento de cargas</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header><div class="brand"><span>MOVETE!</span> Seguimiento de cargas</div><div class="sub">Entrenar es salud</div></header>
+<main>
+<section id="home">
+ <div class="row"><input id="search" placeholder="Buscar alumno…"><button class="primary" type="button" data-action="new-student">+ Alumno</button></div>
+ <div class="row" style="margin-top:10px"><button class="ghost" type="button" data-action="export">Guardar copia</button><button class="ghost" type="button" data-action="import">Restaurar copia</button></div>
+ <input id="importFile" class="hidden" type="file" accept="application/json,.json">
+ <div class="note" id="summary"></div><div id="students"></div>
+</section>
+<section id="profile" class="hidden"></section>
+<section id="exercise" class="hidden"></section>
+<section id="form" class="hidden"></section>
+</main>
+<script src="app.js"></script>
+</body></html>

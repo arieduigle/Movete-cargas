@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+<rect width="512" height="512" rx="96" fill="#111"/>
+<path d="M94 175h50v162H94zm274 0h50v162h-50zM58 218h36v76H58zm360 0h36v76h-36zM144 238h224v36H144z" fill="#43d17b"/>
+<text x="256" y="395" text-anchor="middle" font-family="Arial,sans-serif" font-size="62" font-weight="700" fill="white">MOVETE!</text>
+</svg>
