@@ -17,6 +17,8 @@ seed.push(
   {"exercise_raw":"Sentadilla","category":"Piernas","weight_kg":60,"reps":5,"sets":5,"notes":"","date":"2026-09-23T12:14","student_name":"Mercedes Alcanta","student_id_raw":"student_Mercede","exercise":"Sentadilla","student_key":"mercedes-alcanta"}
 );
 
+seed.push(...(window.MOVETE_AUGUST_2026 || []));
+
 let extra=JSON.parse(localStorage.getItem('movete_records')||'[]');
 let manualStudents=JSON.parse(localStorage.getItem('movete_students')||'[]');
 let records=[...seed,...extra];
