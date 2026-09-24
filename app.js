@@ -144,7 +144,8 @@ function exportBackup(){
  a.download='MOVETE_backup_'+new Date().toISOString().slice(0,10)+'.json';
  document.body.appendChild(a);a.click();a.remove();
  setTimeout(()=>URL.revokeObjectURL(url),1000);
-}
+
+seed.push(...(window.MOVETE_SEPTEMBER_24_2026 || [])); records=[...seed,...extra]; renderHome();}
 function importBackup(){
  const input=qs('#importFile');
  input.value='';
