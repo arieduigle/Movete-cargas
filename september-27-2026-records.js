@@ -20,7 +20,7 @@ window.MOVETE_SEPTEMBER_27_2026 = [
   {"exercise_raw":"Good Morning","category":"Piernas","weight_kg":35,"reps":5,"sets":5,"notes":"","date":"2026-09-27T21:30","student_name":"Rosalia Boully","student_id_raw":"student_Rosalia B","exercise":"Good Morning","student_key":"rosalia-boully"},
   {"exercise_raw":"Good Morning","category":"Piernas","weight_kg":35,"reps":5,"sets":5,"notes":"","date":"2026-09-27T21:31","student_name":"Lorena Nedelko","student_id_raw":"student_Lorena N","exercise":"Good Morning","student_key":"lorena-nedelko"},
   {"exercise_raw":"Good Morning","category":"Piernas","weight_kg":35,"reps":5,"sets":5,"notes":"","date":"2026-09-27T21:32","student_name":"Belen Chazarreta","student_id_raw":"student_Belen Ch","exercise":"Good Morning","student_key":"belen-chazarreta"},
-  {"exercise_raw":"Good Morning","category":"Piernas","weight_kg":40,"reps":5,"sets":5,"notes":"","date":"2026-09-27T21:33","student_name":"Susana Fernandez","student_id_raw":"student_Susana F","exercise":"Good Morning","student_key":"susana-fernandez"},
+  {"exercise_raw":"Good Morning","category":"Piernas","weight_kg":40,"reps":5,"sets":5,"notes":"","date":"2026-09-27T21:33","student_name":"Susana Fernande","student_id_raw":"student_Susana F","exercise":"Good Morning","student_key":"susana-fernande"},
   {"exercise_raw":"Good Morning","category":"Piernas","weight_kg":50,"reps":5,"sets":5,"notes":"","date":"2026-09-27T21:34","student_name":"Seba Goizueta","student_id_raw":"student_Seba Go","exercise":"Good Morning","student_key":"seba-goizueta"},
   {"exercise_raw":"Good Morning","category":"Piernas","weight_kg":50,"reps":5,"sets":5,"notes":"","date":"2026-09-27T21:35","student_name":"Analia Yanez","student_id_raw":"student_Analia Ya","exercise":"Good Morning","student_key":"analia-yanez"},
   {"exercise_raw":"Good Morning","category":"Piernas","weight_kg":50,"reps":5,"sets":5,"notes":"","date":"2026-09-27T21:36","student_name":"Stefi Gonzalez","student_id_raw":"student_Stefi Gon","exercise":"Good Morning","student_key":"stefi-gonzalez"},
@@ -34,7 +34,7 @@ window.MOVETE_SEPTEMBER_27_2026 = [
   {"exercise_raw":"Good Morning","category":"Piernas","weight_kg":40,"reps":5,"sets":5,"notes":"","date":"2026-09-27T21:44","student_name":"Mariana Quani","student_id_raw":"student_Mariana Q","exercise":"Good Morning","student_key":"mariana-quani"},
   {"exercise_raw":"Good Morning","category":"Piernas","weight_kg":40,"reps":5,"sets":5,"notes":"","date":"2026-09-27T21:45","student_name":"Andrea Brazuna","student_id_raw":"student_Andrea B","exercise":"Good Morning","student_key":"andrea-brazuna"},
   {"exercise_raw":"Good Morning","category":"Piernas","weight_kg":40,"reps":5,"sets":5,"notes":"","date":"2026-09-27T21:46","student_name":"Mariel Quinteros","student_id_raw":"student_Mariel Qu","exercise":"Good Morning","student_key":"mariel-quinteros"},
-  {"exercise_raw":"Good Morning","category":"Piernas","weight_kg":25,"reps":5,"sets":5,"notes":"","date":"2026-09-27T21:47","student_name":"Patricia Dipardo","student_id_raw":"student_Patricia d","exercise":"Good Morning","student_key":"patricia-dipardo"},
+  {"exercise_raw":"Good Morning","category":"Piernas","weight_kg":25,"reps":5,"sets":5,"notes":"","date":"2026-09-27T21:47","student_name":"Patricia dipardo","student_id_raw":"student_Patricia d","exercise":"Good Morning","student_key":"patricia-dipardo"},
   {"exercise_raw":"Good Morning","category":"Piernas","weight_kg":30,"reps":5,"sets":5,"notes":"","date":"2026-09-27T21:48","student_name":"Benja Salinas","student_id_raw":"student_Benja Sal","exercise":"Good Morning","student_key":"benja-salinas"},
   {"exercise_raw":"Good Morning","category":"Piernas","weight_kg":50,"reps":5,"sets":5,"notes":"","date":"2026-09-27T21:49","student_name":"Nazareno Maldon","student_id_raw":"student_Nazareno","exercise":"Good Morning","student_key":"nazareno-maldon"},
   {"exercise_raw":"Good Morning","category":"Piernas","weight_kg":50,"reps":5,"sets":5,"notes":"","date":"2026-09-27T21:50","student_name":"JuanMa Vidarte","student_id_raw":"student_JuanMa V","exercise":"Good Morning","student_key":"juanma-vidarte"},
@@ -60,7 +60,10 @@ window.MOVETE_SEPTEMBER_27_2026 = [
 
 {
   const key = 'movete_records';
-  const saved = JSON.parse(localStorage.getItem(key) || '[]');
+  const saved = JSON.parse(localStorage.getItem(key) || '[]').filter(record =>
+    !(record.date === '2026-09-27T21:33' && record.student_name === 'Susana Fernandez') &&
+    !(record.date === '2026-09-27T21:47' && record.student_name === 'Patricia Dipardo')
+  );
   const pending = window.MOVETE_SEPTEMBER_27_2026.filter(item =>
     !saved.some(record =>
       record.student_name === item.student_name &&
