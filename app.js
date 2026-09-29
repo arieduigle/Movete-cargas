@@ -208,3 +208,14 @@ for (const r of [...seed,...extra]) { const canonical=aliases.get(normalizeName(
 manualStudents=manualStudents.map(n=>aliases.get(normalizeName(n))||n);
 localStorage.setItem('movete_records',JSON.stringify(extra)); localStorage.setItem('movete_students',JSON.stringify(manualStudents));
 records=[...seed,...extra]; renderHome();
+
+aliases.set('ana bernatd','Ana Berard');
+aliases.set('ana berard','Ana Berard');
+aliases.set('analia berard','Ana Berard');
+aliases.set('ana bernhardt','Ana Berard');
+aliases.set('ana idalgo','Ana Hidalgo');
+aliases.set('ana hidalgo','Ana Hidalgo');
+for(let i=seed.length-1;i>=0;i--){const r=seed[i];if(normalizeName(r.student_name)==='marcela golinelli'&&String(r.date).startsWith('2026-09-28')&&r.exercise==='Hip Thrust')seed.splice(i,1)}
+for(const r of [...seed,...extra]){const canonical=aliases.get(normalizeName(r.student_name));if(canonical){r.student_name=canonical;r.student_key=normalizeName(canonical).replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')}}
+manualStudents=manualStudents.map(n=>aliases.get(normalizeName(n))||n);
+localStorage.setItem('movete_records',JSON.stringify(extra));localStorage.setItem('movete_students',JSON.stringify(manualStudents));records=[...seed,...extra];renderHome();
