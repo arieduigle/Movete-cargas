@@ -1,5 +1,5 @@
 const CACHE='movete-cargas-v4';
-const ASSETS=['./','./index.html','./styles.css','./app.js','./august-2026-records.js','./september-24-2026-records.js','./september-27-2026-records.js','./september-28-2026-records.js','./manifest.webmanifest','./icon.svg'];
+const ASSETS=['./','./index.html','./styles.css','./app.js','./app.js?v=5','./august-2026-records.js','./september-24-2026-records.js','./september-27-2026-records.js','./september-28-2026-records.js','./manifest.webmanifest','./icon.svg'];
 self.addEventListener('install',e=>e.waitUntil(
  caches.open(CACHE).then(c=>c.addAll(ASSETS)).then(()=>self.skipWaiting())
 ));
