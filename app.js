@@ -200,3 +200,11 @@ window.addEventListener('appinstalled',()=>document.getElementById('installBar')
 if('serviceWorker' in navigator){
  window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
 }
+
+seed.push(...(window.MOVETE_SEPTEMBER_24_2026 || []), ...(window.MOVETE_SEPTEMBER_27_2026 || []), ...(window.MOVETE_SEPTEMBER_28_2026 || []));
+const normalizeName = value => String(value).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
+const aliases = new Map([['adrian lambert','Adriana Lambert'],['adriana lambert','Adriana Lambert'],['ana bernatd','Ana Bernhardt'],['ana berard','Ana Bernhardt'],['flor casares','Flor Placeres'],['gergina','Georgina'],['gergina cavaglia','Georgina Cavaglia'],['mel coyle','Mel Gonzalez'],['mel gonzales','Mel Gonzalez'],['mercedes alcanta','Mercedes Alcántara'],['mercedes alcantara','Mercedes Alcántara'],['sil','Silvana Vasques'],['sil vasquez','Silvana Vasques'],['silvana vasquez','Silvana Vasques'],['silvana vasques','Silvana Vasques']]);
+for (const r of [...seed,...extra]) { const canonical=aliases.get(normalizeName(r.student_name)); if(canonical){r.student_name=canonical;r.student_key=normalizeName(canonical).replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');} }
+manualStudents=manualStudents.map(n=>aliases.get(normalizeName(n))||n);
+localStorage.setItem('movete_records',JSON.stringify(extra)); localStorage.setItem('movete_students',JSON.stringify(manualStudents));
+records=[...seed,...extra]; renderHome();
