@@ -1,5 +1,5 @@
-const CACHE='movete-cargas-v6';
-const ASSETS=['./','./index.html','./styles.css','./app.js','./app.js?v=6','./august-2026-records.js','./september-24-2026-records.js','./september-27-2026-records.js','./september-28-2026-records.js','./november-03-2026-records.js?v=1','./manifest.webmanifest','./icon.svg'];
+const CACHE='movete-cargas-v7';
+const ASSETS=['./','./index.html','./styles.css','./app.js','./app.js?v=6','./august-2026-records.js','./september-24-2026-records.js','./september-27-2026-records.js','./september-28-2026-records.js','./november-03-2026-records.js?v=1','./confirmed-student-aliases-2026.js?v=1','./manifest.webmanifest','./icon.svg'];
 self.addEventListener('install',e=>e.waitUntil(
  caches.open(CACHE).then(c=>c.addAll(ASSETS)).then(()=>self.skipWaiting())
 ));
