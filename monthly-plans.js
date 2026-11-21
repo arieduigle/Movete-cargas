@@ -15,21 +15,23 @@ function draw(name){
  const section=document.createElement('section');section.className='card';section.id='monthlyPlan';
  section.innerHTML='<h2>Plan mensual de fuerza</h2><p class="meta">Objetivos semanales orientativos · Se guardan en este celular</p>'+
  '<label>Mes</label><input id="planMonth" type="month" value="'+m+'">'+
- '<div id="planRows"></div><div class="row"><button type="button" class="ghost" id="planAdd">+ Ejercicio</button></div>'+
+ '<label>Semanas del plan</label><select id="planWeeks"><option value="4">4 semanas</option><option value="5">5 semanas</option></select>'+ '<div id="planRows"></div><div class="row"><button type="button" class="ghost" id="planAdd">+ Ejercicio</button></div>'+
  '<div class="row"><button type="button" class="primary" id="planSave">Guardar plan</button><button type="button" class="ghost" id="planShare">Compartir WhatsApp</button></div>'+
  '<p class="meta" id="planStatus">Cargas en kg. Dejá vacía una semana si no corresponde trabajarla.</p>';
  host.appendChild(section);
  function addRow(ex='',values=[]){
   const div=document.createElement('div');div.className='card planRow';
   div.innerHTML='<div class="row"><select class="planExercise">'+exercises.concat(ex&&!exercises.includes(ex)?[ex]:[]).map(x=>'<option value="'+safe(x)+'" '+(x===ex?'selected':'')+'>'+safe(x)+'</option>').join('')+'</select><button type="button" class="ghost planRemove">Quitar</button></div>'+
-  '<div class="row">'+[0,1,2,3].map(i=>'<div><label>S'+(i+1)+'</label><input class="planWeek" type="number" min="0" step="0.5" inputmode="decimal" placeholder="kg" value="'+(values[i]??'')+'"></div>').join('')+'</div>';
+  '<div class="row">'+[0,1,2,3,4].map(i=>'<div><label>S'+(i+1)+'</label><input class="planWeek" type="number" min="0" step="0.5" inputmode="decimal" placeholder="kg" value="'+(values[i]??'')+'"></div>').join('')+'</div>';
   section.querySelector('#planRows').appendChild(div);
-  div.querySelector('.planRemove').onclick=()=>div.remove();
+  div.querySelector('.planRemove').onclick=()=>div.remove(); updateWeeks();
  }
- function load(){section.querySelector('#planRows').innerHTML='';const data=read()[key(name)]?.[section.querySelector('#planMonth').value]||{};Object.entries(data).forEach(([ex,v])=>addRow(ex,v));if(!Object.keys(data).length)addRow('Sentadilla');}
- function collect(){const data={};let invalid=false;section.querySelectorAll('.planRow').forEach(row=>{const ex=row.querySelector('.planExercise').value;if(data[ex]){invalid=true;return;}const vals=[...row.querySelectorAll('.planWeek')].map(el=>el.value===''?null:Number(el.value));if(vals.some(v=>v!==null&&(!Number.isFinite(v)||v<0)))invalid=true;data[ex]=vals;});return invalid?null:data;}
+ function updateWeeks(){const five=section.querySelector('#planWeeks').value==='5';section.querySelectorAll('.planRow').forEach(row=>{const last=row.querySelectorAll('.planWeek')[4];if(last)last.parentElement.style.display=five?'':'none';});}
+ function load(){section.querySelector('#planRows').innerHTML='';const data=read()[key(name)]?.[section.querySelector('#planMonth').value]||{};const hasFive=Object.values(data).some(v=>Array.isArray(v)&&v.length===5);section.querySelector('#planWeeks').value=hasFive?'5':'4';Object.entries(data).forEach(([ex,v])=>addRow(ex,v));if(!Object.keys(data).length)addRow('Sentadilla');updateWeeks();}
+ function collect(){const data={};let invalid=false;section.querySelectorAll('.planRow').forEach(row=>{const ex=row.querySelector('.planExercise').value;if(data[ex]){invalid=true;return;}const vals=[...row.querySelectorAll('.planWeek')].slice(0,Number(section.querySelector('#planWeeks').value)).map(el=>el.value===''?null:Number(el.value));if(vals.some(v=>v!==null&&(!Number.isFinite(v)||v<0)))invalid=true;data[ex]=vals;});return invalid?null:data;}
  function save(){const data=collect();if(!data){alert('Revisá los pesos o los ejercicios repetidos.');return null;}const all=read(),k=key(name),m=section.querySelector('#planMonth').value;if(!m){alert('Elegí un mes.');return null;}if(!all[k])all[k]={};all[k][m]=data;try{localStorage.setItem(STORE,JSON.stringify(all));section.querySelector('#planStatus').textContent='Plan guardado en este dispositivo.';return data;}catch{alert('No se pudo guardar el plan.');return null;}}
  section.querySelector('#planMonth').onchange=load;
+ section.querySelector('#planWeeks').onchange=updateWeeks;
  section.querySelector('#planAdd').onclick=()=>addRow(exercises.find(x=>![...section.querySelectorAll('.planExercise')].some(s=>s.value===x))||exercises[0]);
  section.querySelector('#planSave').onclick=save;
  section.querySelector('#planShare').onclick=()=>{
