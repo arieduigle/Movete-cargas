@@ -29,7 +29,7 @@ function show(id){['home','profile','exercise','form'].forEach(x=>qs('#'+x).clas
 function lastFor(name){return records.filter(r=>r.student_name===name).sort((a,b)=>b.date.localeCompare(a.date))[0]}
 function esc(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
 function renderHome(){
- const q=qs('#search').value.toLowerCase().trim(); const names=allStudents().filter(n=>n.toLowerCase().includes(q));
+ const normalizeSearch=s=>String(s).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim(); const q=normalizeSearch(qs('#search').value); const names=allStudents().filter(n=>normalizeSearch(n).includes(q));
  qs('#summary').textContent=`${allStudents().length} alumnos · ${records.length} registros de carga`;
  qs('#students').innerHTML=names.map(n=>{let l=lastFor(n);return `<div class="card student student-link" role="button" tabindex="0" data-student="${esc(n)}"><div><b>${esc(n)}</b><div class="meta">${l?`Último: ${fmtDate(l.date)} · ${esc(l.exercise)} · ${l.weight_kg} kg`:'Sin cargas todavía'}</div></div><div>›</div></div>`}).join('');
 }
