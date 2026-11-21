@@ -178,7 +178,13 @@ function newStudent(){
  if(exact){alert('Este alumno ya existe como '+exact+'. Abriremos su historial para evitar duplicados.');profile(exact);return;}
  const first=s=>key(s).split(' ')[0];
  const surname=s=>key(s).split(' ').slice(1).join(' ');
- const candidates=existing.filter(s=>surname(s)&&surname(n)&&surname(s)===surname(n) && (first(s).startsWith(first(n))||first(n).startsWith(first(s))));
+ const distance=(a,b)=>{let row=Array.from({length:b.length+1},(_,i)=>i);for(let i=0;i<a.length;i++){const next=[i+1];for(let j=0;j<b.length;j++)next.push(Math.min(next[j]+1,row[j+1]+1,row[j]+(a[i]===b[j]?0:1)));row=next;}return row[b.length];};
+ const candidates=existing.filter(s=>{
+  if(!surname(s)||!surname(n)||surname(s)!==surname(n))return false;
+  const a=first(s),b=first(n);
+  return (Math.min(a.length,b.length)>=3&&(a.startsWith(b)||b.startsWith(a)))||
+   (Math.min(a.length,b.length)>=4&&distance(a,b)<=2);
+ });
  if(candidates.length){
   const proceed=confirm('Posible alumno repetido: '+candidates.slice(0,5).join(', ')+'.\n\nAceptar: crear un alumno diferente.\nCancelar: volver y revisar el nombre.');
   if(!proceed)return;
