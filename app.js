@@ -170,7 +170,20 @@ qs('#importFile').addEventListener('change',function(){
 });
 function newStudent(){
  const name=prompt('Nombre y apellido del alumno:'); if(!name||!name.trim())return;
- const n=name.trim(); if(!manualStudents.includes(n)){manualStudents.push(n);localStorage.setItem('movete_students',JSON.stringify(manualStudents))} renderHome();profile(n);
+ const n=name.trim().replace(/\s+/g,' ');
+ const key=s=>normalizeName(s).replace(/\s+/g,' ');
+ const existing=allStudents();
+ const canonical=aliases.get(key(n));
+ const exact=existing.find(s=>key(s)===key(n))||(canonical&&existing.find(s=>key(s)===key(canonical)));
+ if(exact){alert('Este alumno ya existe como '+exact+'. Abriremos su historial para evitar duplicados.');profile(exact);return;}
+ const first=s=>key(s).split(' ')[0];
+ const surname=s=>key(s).split(' ').slice(1).join(' ');
+ const candidates=existing.filter(s=>surname(s)&&surname(n)&&surname(s)===surname(n) && (first(s).startsWith(first(n))||first(n).startsWith(first(s))));
+ if(candidates.length){
+  const proceed=confirm('Posible alumno repetido: '+candidates.slice(0,5).join(', ')+'.\n\nAceptar: crear un alumno diferente.\nCancelar: volver y revisar el nombre.');
+  if(!proceed)return;
+ }
+ manualStudents.push(n);localStorage.setItem('movete_students',JSON.stringify(manualStudents));renderHome();profile(n);
 }
 try {
   renderHome();
