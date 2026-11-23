@@ -87,8 +87,9 @@ function draw(name){
    sunday.setUTCHours(22,0,0,0); // Domingo 19:00 Argentina
    const end=new Date(sunday.getTime()+15*60000);
    const targets=Object.entries(plan).filter(([,v])=>Array.isArray(v)&&v[i]!==null&&v[i]!==undefined&&v[i]!=='').map(([ex,v])=>ex+': '+(Number(v)===0?'Sin carga programada':String(v).replace('.',',')+' kg'));
-   const description=['MOVETE! · Entrenar es salud','Objetivos de fuerza · Semana '+(i+1),'Alumno: '+name,'',...(targets.length?targets:['Sin cargas programadas']),'','Objetivos orientativos sujetos a la evolución del entrenamiento.'].join('\n');
-   const url='https://calendar.google.com/calendar/render?'+new URLSearchParams({action:'TEMPLATE',text:'MOVETE! · Fuerza · Semana '+(i+1),dates:stamp(sunday)+'/'+stamp(end),details:description,ctz:'America/Argentina/Buenos_Aires'}).toString();
+   const firstName=String(name).trim().split(/\s+/)[0]||'alumno';
+   const description=['¡Hola, '+firstName+'! 💪','','Estos son tus objetivos de fuerza para esta semana.','',...(targets.length?targets:['Sin cargas programadas']),'','Recordá que buscamos progresar semana a semana, priorizando la técnica y la calidad del movimiento.','','Las cargas son orientativas y pueden ajustarse según tu evolución.','','MOVETE! · Entrenar es salud 💚'].join('\n');
+   const url='https://calendar.google.com/calendar/render?'+new URLSearchParams({action:'TEMPLATE',text:'MOVETE! 💚 | Objetivos de fuerza · Semana '+(i+1),dates:stamp(sunday)+'/'+stamp(end),details:description,ctz:'America/Argentina/Buenos_Aires'}).toString();
    lines.push('','*Semana '+(i+1)+' · Domingo 19:00*',...targets,url);
   }
   lines.push('','Cada enlace abre Google Calendar para confirmar el recordatorio. No se agregan eventos automáticamente.');
