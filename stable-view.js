@@ -12,6 +12,7 @@
   if(!canonical.has(k))canonical.set(k,name);
  }
  const cleaned=dedupe([...seed,...extra].map(r=>({...r,student_name:canonical.get(norm(r.student_name))||r.student_name})));
+ window.moveteStableRecords=()=>dedupe([...seed,...extra].map(r=>({...r,student_name:canonical.get(norm(r.student_name))||r.student_name})));
  records=cleaned;
  // Los alumnos manuales se conservan. La lista visible no depende de cuantas veces se abra.
  const students=new Map();
