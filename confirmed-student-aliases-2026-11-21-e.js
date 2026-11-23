@@ -15,7 +15,7 @@
   if(to){r.student_name=to;r.student_key=slug(to);}
  }
  manualStudents=[...new Set(manualStudents.map(n=>fixes.get(key(n))||n))];
- localStorage.setItem('movete_records',JSON.stringify(extra));
- localStorage.setItem('movete_students',JSON.stringify(manualStudents));
+ 
+ 
  records=[...seed,...extra];renderHome();
 })();
