@@ -137,7 +137,8 @@ function exportBackup(){
    version:1,
    exported_at:new Date().toISOString(),
    added_records:extra,
-   manual_students:manualStudents
+   manual_students:manualStudents,
+   monthly_plans:JSON.parse(localStorage.getItem('movete_monthly_plans_v1')||'{}')
  };
  const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
  const url=URL.createObjectURL(blob);
@@ -163,6 +164,7 @@ qs('#importFile').addEventListener('change',function(){
      extra=data.added_records; manualStudents=data.manual_students;
      localStorage.setItem('movete_records',JSON.stringify(extra));
      localStorage.setItem('movete_students',JSON.stringify(manualStudents));
+     if(data.monthly_plans&&typeof data.monthly_plans==='object'&&!Array.isArray(data.monthly_plans))localStorage.setItem('movete_monthly_plans_v1',JSON.stringify(data.monthly_plans));
      records=window.moveteStableRecords?window.moveteStableRecords():[...seed,...extra]; renderHome(); show('home');
      alert('Copia restaurada correctamente.');
    }catch(e){alert('No pude restaurar esa copia: '+e.message)}
