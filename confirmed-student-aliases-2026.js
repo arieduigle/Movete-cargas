@@ -8,8 +8,8 @@ for(const record of [...seed,...extra]){
  if(canonical){record.student_name=canonical;record.student_key=slug(canonical);}
 }
 manualStudents=[...new Set(manualStudents.map(n=>confirmed.get(normalizeName(n))||n))];
-localStorage.setItem('movete_records',JSON.stringify(extra));
-localStorage.setItem('movete_students',JSON.stringify(manualStudents));
+
+
 records=[...seed,...extra];
 renderHome();
 })();
