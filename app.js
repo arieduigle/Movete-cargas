@@ -224,7 +224,7 @@ const normalizeName = value => String(value).normalize('NFD').replace(/[\u0300-\
 const aliases = new Map([['adrian lambert','Adriana Lambert'],['adriana lambert','Adriana Lambert'],['ana bernatd','Ana Bernhardt'],['ana berard','Ana Bernhardt'],['flor casares','Flor Placeres'],['gergina','Georgina'],['gergina cavaglia','Georgina Cavaglia'],['mel coyle','Mel Gonzalez'],['mel gonzales','Mel Gonzalez'],['mercedes alcanta','Mercedes Alcántara'],['mercedes alcantara','Mercedes Alcántara'],['sil','Silvana Vasques'],['sil vasquez','Silvana Vasques'],['silvana vasquez','Silvana Vasques'],['silvana vasques','Silvana Vasques']]);
 for (const r of [...seed,...extra]) { const canonical=aliases.get(normalizeName(r.student_name)); if(canonical){r.student_name=canonical;r.student_key=normalizeName(canonical).replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');} }
 manualStudents=manualStudents.map(n=>aliases.get(normalizeName(n))||n);
-localStorage.setItem('movete_records',JSON.stringify(extra)); localStorage.setItem('movete_students',JSON.stringify(manualStudents));
+ 
 records=[...seed,...extra]; renderHome();
 
 aliases.set('ana bernatd','Ana Berard');
@@ -236,4 +236,4 @@ aliases.set('ana hidalgo','Ana Hidalgo');
 for(let i=seed.length-1;i>=0;i--){const r=seed[i];if(normalizeName(r.student_name)==='marcela golinelli'&&String(r.date).startsWith('2026-09-28')&&r.exercise==='Hip Thrust')seed.splice(i,1)}
 for(const r of [...seed,...extra]){const canonical=aliases.get(normalizeName(r.student_name));if(canonical){r.student_name=canonical;r.student_key=normalizeName(canonical).replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')}}
 manualStudents=manualStudents.map(n=>aliases.get(normalizeName(n))||n);
-localStorage.setItem('movete_records',JSON.stringify(extra));localStorage.setItem('movete_students',JSON.stringify(manualStudents));records=[...seed,...extra];renderHome();
+records=[...seed,...extra];renderHome();
