@@ -74,8 +74,12 @@ function draw(name){
  $('#planShare').onclick=()=>{
   if(!save())return;
   const plan=savedPlan(),m=$('#planMonth').value;
-  const lines=['MOVETE! · Entrenar es salud','Plan de fuerza · '+name,'Mes: '+m];
-  Object.entries(plan).forEach(([ex,vals])=>{if(!Array.isArray(vals))return;lines.push('',ex);vals.forEach((v,i)=>{if(v!==null&&v!==undefined&&v!=='')lines.push('Semana '+(i+1)+': '+v+' kg')})});
+  const firstName=String(name).trim().split(/\s+/)[0]||'';
+  const [year,monthNumber]=m.split('-').map(Number);
+  const monthLabel=new Intl.DateTimeFormat('es-AR',{month:'long',year:'numeric'}).format(new Date(year,monthNumber-1,1));
+  const lines=['💚 *MOVETE! · Entrenar es salud*','', '¡Hola, '+firstName+'! 💪','Te compartimos tus objetivos de fuerza para este mes. La idea es seguir progresando semana a semana, respetando tus tiempos y tu evolución.','', '📅 *Plan de fuerza · '+monthLabel.charAt(0).toUpperCase()+monthLabel.slice(1)+'*','👤 *Alumno:* '+name];
+  Object.entries(plan).forEach(([ex,vals])=>{if(!Array.isArray(vals))return;lines.push('','🏋️ *'+ex+'*');vals.forEach((v,i)=>{if(v!==null&&v!==undefined&&v!=='')lines.push('Semana '+(i+1)+': '+(Number(v)===0?'Sin carga programada':String(v).replace('.',',')+' kg'))})});
+  lines.push('','🎯 *Importante:* Las cargas son objetivos orientativos y pueden ajustarse según tu evolución y respuesta al entrenamiento.','','*¡Seguimos trabajando para superarnos! 💚*');
   const message=lines.join('\n');const url='https://wa.me/?text='+encodeURIComponent(message);
   window.open(url,'_blank','noopener');
  };
