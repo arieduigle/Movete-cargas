@@ -12,7 +12,7 @@
   }
  }
  manualStudents=[...new Set(manualStudents.map(n=>(key(n)==='eve'||key(n)==='evelyn wasinger')?target:n))];
- localStorage.setItem('movete_records',JSON.stringify(extra));
- localStorage.setItem('movete_students',JSON.stringify(manualStudents));
+ 
+ 
  records=[...seed,...extra];renderHome();
 })();
