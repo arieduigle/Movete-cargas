@@ -17,7 +17,7 @@ function draw(name){
  '<label for="planMonth">Mes</label><input id="planMonth" type="month" value="'+month()+'">'+
  '<label for="planWeeks">Semanas del plan</label><select id="planWeeks"><option value="4">4 semanas</option><option value="5">5 semanas</option></select>'+
  '<div id="planRows"></div><div class="row"><button type="button" class="ghost" id="planAdd">+ Ejercicio</button></div>'+
- '<div class="row"><button type="button" class="primary" id="planSave">Guardar plan</button><button type="button" class="ghost" id="planShare">Compartir WhatsApp</button></div>'+
+ '<div class="row"><button type="button" class="primary" id="planSave">Guardar plan</button><button type="button" class="ghost" id="planShare">Compartir WhatsApp</button><button type="button" class="ghost" id="planCalendar">Google Calendar · domingos 19 h</button></div>'+
  '<p class="meta" id="planStatus">Cargas objetivo en kg. Las semanas sin entrenamiento pueden quedar vacías.</p><div id="planProgress"></div>';
  host.appendChild(section);
  const $=s=>section.querySelector(s);
@@ -67,6 +67,40 @@ function draw(name){
    data[student] ||= {};data[student][m]=collect();write(data);status('Plan guardado en este celular.');renderProgress();return true;
   }catch(e){status('No se pudo guardar: '+e.message);return false}
  }
+
+ // Exportación de recordatorios semanales; no modifica alumnos ni registros.
+ function calendarExport(){
+  if(!save())return;
+  const m=$('#planMonth').value,plan=savedPlan();
+  const [year,monthNumber]=m.split('-').map(Number);
+  const count=Number($('#planWeeks').value);
+  const first=new Date(Date.UTC(year,monthNumber-1,1));
+  // Semana 1 comienza el lunes de la semana que contiene el día 1.
+  const firstMonday=new Date(first);
+  firstMonday.setUTCDate(first.getUTCDate()-((first.getUTCDay()+6)%7));
+  const pad=n=>String(n).padStart(2,'0');
+  const stamp=d=>d.getUTCFullYear()+pad(d.getUTCMonth()+1)+pad(d.getUTCDate())+'T'+pad(d.getUTCHours())+pad(d.getUTCMinutes())+pad(d.getUTCSeconds())+'Z';
+  const escapeIcs=s=>String(s).replace(/\\/g,'\\\\').replace(/\r?\n/g,'\\n').replace(/,/g,'\\,').replace(/;/g,'\\;');
+  const now=stamp(new Date());
+  const events=[];
+  for(let i=0;i<count;i++){
+   const sunday=new Date(firstMonday);
+   sunday.setUTCDate(firstMonday.getUTCDate()+i*7-1);
+   // Domingo 19:00 Argentina = domingo 22:00 UTC.
+   sunday.setUTCHours(22,0,0,0);
+   const end=new Date(sunday.getTime()+15*60000);
+   const targets=Object.entries(plan).filter(([,v])=>Array.isArray(v)&&v[i]!==null&&v[i]!==undefined&&v[i]!=='').map(([ex,v])=>ex+': '+(Number(v)===0?'Sin carga programada':String(v).replace('.',',')+' kg'));
+   const description=['MOVETE! · Entrenar es salud','Objetivos de fuerza · Semana '+(i+1),'Alumno: '+name,'',...targets,'','Objetivos orientativos sujetos a la evolución del entrenamiento.'].join('\n');
+   events.push('BEGIN:VEVENT','UID:movete-'+encodeURIComponent(key(name)).replace(/%/g,'')+'-'+m+'-s'+(i+1)+'@movete','DTSTAMP:'+now,'DTSTART:'+stamp(sunday),'DTEND:'+stamp(end),'SUMMARY:'+escapeIcs('MOVETE! · Fuerza · Semana '+(i+1)),'DESCRIPTION:'+escapeIcs(description),'BEGIN:VALARM','ACTION:DISPLAY','DESCRIPTION:'+escapeIcs('MOVETE! · Objetivos de fuerza · Semana '+(i+1)),'TRIGGER:PT0M','END:VALARM','END:VEVENT');
+  }
+  const ics=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//MOVETE//Plan mensual de fuerza//ES','CALSCALE:GREGORIAN','METHOD:PUBLISH',...events,'END:VCALENDAR'].join('\r\n')+'\r\n';
+  const blob=new Blob([ics],{type:'text/calendar;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const link=document.createElement('a');link.href=url;link.download='MOVETE-plan-'+m+'-'+key(name).replace(/[^a-z0-9]+/g,'-')+'.ics';
+  document.body.appendChild(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),10000);
+  status('Calendario descargado: '+count+' recordatorios los domingos a las 19 h. Compartí el archivo .ics con el alumno para que lo importe a su calendario.');
+ }
+ $('#planCalendar').onclick=calendarExport;
  $('#planMonth').onchange=load;
  $('#planWeeks').onchange=updateWeeks;
  $('#planAdd').onclick=()=>addRow();
