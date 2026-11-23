@@ -127,6 +127,8 @@ function saveRecord(name){
  let w=parseFloat(qs('#fw').value),reps=parseInt(qs('#fr').value),sets=parseInt(qs('#fs').value),date=qs('#fd').value,notes=qs('#fn').value.trim();
  if(!Number.isFinite(w)||!reps||!sets||!date){alert('Completá peso, repeticiones, series y fecha.');return}
  let r={student_name:name,student_key:name.toLowerCase(),exercise:ex,exercise_raw:ex,category:'General',weight_kg:w,reps,sets,notes,date,student_id_raw:'app'};
+ const same=(a,b)=>normalizeName(a.student_name)===normalizeName(b.student_name)&&normalizeName(a.exercise)===normalizeName(b.exercise)&&String(a.date).slice(0,10)===String(b.date).slice(0,10)&&Number(a.weight_kg)===Number(b.weight_kg)&&Number(a.reps)===Number(b.reps)&&Number(a.sets)===Number(b.sets)&&String(a.notes||'').trim()===String(b.notes||'').trim();
+ if([...seed,...extra].some(existing=>same(existing,r))){alert('Esta carga ya existe en el historial. No se agregó nuevamente.');profile(name);return;}
  extra.push(r);localStorage.setItem('movete_records',JSON.stringify(extra));records=window.moveteStableRecords?window.moveteStableRecords():[...seed,...extra];profile(name);
 }
 function exportBackup(){
