@@ -20,10 +20,9 @@
   const k=norm(name);if(k&&!students.has(k))students.set(k,canonical.get(k)||String(name).trim());
  }
  const fixedNames=[...students.values()].sort((a,b)=>a.localeCompare(b,'es'));
- const oldAllStudents=allStudents;
  // La función global es const: no se reasigna. Los nombres ya normalizados en records
  // mantienen una única identidad en el historial; manualStudents se normaliza en memoria.
  manualStudents=fixedNames.filter(n=>!records.some(r=>norm(r.student_name)===norm(n)));
  renderHome();
- window.MOVETE_DIAGNOSTICO=Object.freeze({version:'reconstruccion-2',originales:seed.length,guardados:extra.length,visibles:records.length,alumnos:allStudents().length,duplicadosOcultos:seed.length+extra.length-records.length});
+ window.MOVETE_DIAGNOSTICO=()=>Object.freeze({version:'reconstruccion-3',originales:seed.length,guardados:extra.length,visibles:records.length,alumnos:allStudents().length,duplicadosOcultos:seed.length+extra.length-records.length});
 })();
