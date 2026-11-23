@@ -69,7 +69,7 @@ function draw(name){
  }
 
  // Exportación de recordatorios semanales; no modifica alumnos ni registros.
- function calendarExport(){
+ async function calendarExport(){
   if(!save())return;
   const m=$('#planMonth').value,plan=savedPlan();
   const [year,monthNumber]=m.split('-').map(Number);
@@ -95,10 +95,23 @@ function draw(name){
   }
   const ics=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//MOVETE//Plan mensual de fuerza//ES','CALSCALE:GREGORIAN','METHOD:PUBLISH',...events,'END:VCALENDAR'].join('\r\n')+'\r\n';
   const blob=new Blob([ics],{type:'text/calendar;charset=utf-8'});
+  const filename='MOVETE-plan-'+m+'-'+key(name).replace(/[^a-z0-9]+/g,'-')+'.ics';
+  const file=new File([blob],filename,{type:'text/calendar'});
+  // En celulares compatibles abre la hoja nativa para compartir, sin descargar primero.
+  if(navigator.share && navigator.canShare && navigator.canShare({files:[file]})){
+   try{
+    await navigator.share({files:[file],title:'MOVETE! · Plan de fuerza · '+name});
+    status('Plan de calendario compartido. El alumno debe importar el archivo en su calendario.');
+    return;
+   }catch(e){
+    if(e.name==='AbortError'){status('Compartir cancelado.');return;}
+   }
+  }
+  // Alternativa para navegadores que no admiten compartir archivos.
   const url=URL.createObjectURL(blob);
-  const link=document.createElement('a');link.href=url;link.download='MOVETE-plan-'+m+'-'+key(name).replace(/[^a-z0-9]+/g,'-')+'.ics';
+  const link=document.createElement('a');link.href=url;link.download=filename;
   document.body.appendChild(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),10000);
-  status('Calendario descargado: '+count+' recordatorios los domingos a las 19 h. Compartí el archivo .ics con el alumno para que lo importe a su calendario.');
+  status('Tu navegador no permite compartir directamente archivos de calendario. Se descargó el archivo .ics para enviarlo por WhatsApp como documento.');
  }
  $('#planCalendar').onclick=calendarExport;
  $('#planMonth').onchange=load;
