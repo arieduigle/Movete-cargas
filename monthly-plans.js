@@ -86,15 +86,17 @@ function draw(name){
    sunday.setUTCDate(firstMonday.getUTCDate()+i*7-1);
    sunday.setUTCHours(22,0,0,0); // Domingo 19:00 Argentina
    const end=new Date(sunday.getTime()+15*60000);
-   const targets=Object.entries(plan).filter(([,v])=>Array.isArray(v)&&v[i]!==null&&v[i]!==undefined&&v[i]!=='').map(([ex,v])=>ex+': '+(Number(v)===0?'Sin carga programada':String(v).replace('.',',')+' kg'));
+   const targets=Object.entries(plan).filter(([,v])=>Array.isArray(v)&&Number.isFinite(Number(v[i]))&&v[i]!==null&&v[i]!==undefined&&v[i]!==''&&Number(v[i])>0).map(([ex,v])=>ex+': '+String(v[i]).replace('.',',')+' kg');
+   if(!targets.length)continue;
    const firstName=String(name).trim().split(/\s+/)[0]||'alumno';
    const description=['¡Hola, '+firstName+'! 💪','','Estos son tus objetivos de fuerza para esta semana.','',...(targets.length?targets:['Sin cargas programadas']),'','Recordá que buscamos progresar semana a semana, priorizando la técnica y la calidad del movimiento.','','Las cargas son orientativas y pueden ajustarse según tu evolución.','','MOVETE! · Entrenar es salud 💚'].join('\n');
    const url='https://calendar.google.com/calendar/render?'+new URLSearchParams({action:'TEMPLATE',text:'MOVETE! 💚 | Objetivos de fuerza · Semana '+(i+1),dates:stamp(sunday)+'/'+stamp(end),details:description,ctz:'America/Argentina/Buenos_Aires'}).toString();
    lines.push('','*Semana '+(i+1)+' · Domingo 19:00*',...targets,url);
   }
+  if(!lines.some(line=>line.startsWith('*Semana '))){status('No hay semanas con cargas mayores a 0 kg para compartir en Google Calendar.');return;}
   lines.push('','Cada enlace abre Google Calendar para confirmar el recordatorio. No se agregan eventos automáticamente.');
   window.open('https://wa.me/?text='+encodeURIComponent(lines.join('\n')),'_blank','noopener');
-  status('Se abrió WhatsApp con los enlaces de Google Calendar para '+count+' semanas. El alumno debe confirmar cada evento.');
+  status('Se abrió WhatsApp con los enlaces de las semanas con cargas programadas. El alumno debe confirmar cada evento.');
  }
  $('#planCalendar').onclick=calendarExport;
  $('#planMonth').onchange=load;
