@@ -127,7 +127,7 @@ function saveRecord(name){
  let w=parseFloat(qs('#fw').value),reps=parseInt(qs('#fr').value),sets=parseInt(qs('#fs').value),date=qs('#fd').value,notes=qs('#fn').value.trim();
  if(!Number.isFinite(w)||!reps||!sets||!date){alert('Completá peso, repeticiones, series y fecha.');return}
  let r={student_name:name,student_key:name.toLowerCase(),exercise:ex,exercise_raw:ex,category:'General',weight_kg:w,reps,sets,notes,date,student_id_raw:'app'};
- extra.push(r);localStorage.setItem('movete_records',JSON.stringify(extra));records=[...seed,...extra];profile(name);
+ extra.push(r);localStorage.setItem('movete_records',JSON.stringify(extra));records=window.moveteStableRecords?window.moveteStableRecords():[...seed,...extra];profile(name);
 }
 function exportBackup(){
  const payload={
@@ -162,7 +162,7 @@ qs('#importFile').addEventListener('change',function(){
      extra=data.added_records; manualStudents=data.manual_students;
      localStorage.setItem('movete_records',JSON.stringify(extra));
      localStorage.setItem('movete_students',JSON.stringify(manualStudents));
-     records=[...seed,...extra]; renderHome(); show('home');
+     records=window.moveteStableRecords?window.moveteStableRecords():[...seed,...extra]; renderHome(); show('home');
      alert('Copia restaurada correctamente.');
    }catch(e){alert('No pude restaurar esa copia: '+e.message)}
  };
