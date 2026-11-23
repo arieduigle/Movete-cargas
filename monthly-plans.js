@@ -69,49 +69,31 @@ function draw(name){
  }
 
  // Exportación de recordatorios semanales; no modifica alumnos ni registros.
- async function calendarExport(){
+ function calendarExport(){
   if(!save())return;
   const m=$('#planMonth').value,plan=savedPlan();
   const [year,monthNumber]=m.split('-').map(Number);
   const count=Number($('#planWeeks').value);
   const first=new Date(Date.UTC(year,monthNumber-1,1));
-  // Semana 1 comienza el lunes de la semana que contiene el día 1.
   const firstMonday=new Date(first);
   firstMonday.setUTCDate(first.getUTCDate()-((first.getUTCDay()+6)%7));
   const pad=n=>String(n).padStart(2,'0');
   const stamp=d=>d.getUTCFullYear()+pad(d.getUTCMonth()+1)+pad(d.getUTCDate())+'T'+pad(d.getUTCHours())+pad(d.getUTCMinutes())+pad(d.getUTCSeconds())+'Z';
-  const escapeIcs=s=>String(s).replace(/\\/g,'\\\\').replace(/\r?\n/g,'\\n').replace(/,/g,'\\,').replace(/;/g,'\\;');
-  const now=stamp(new Date());
-  const events=[];
+  const monthLabel=new Intl.DateTimeFormat('es-AR',{month:'long',year:'numeric'}).format(new Date(year,monthNumber-1,1));
+  const lines=['💚 *MOVETE! · Entrenar es salud*','','📅 *Recordatorios de fuerza · '+monthLabel+'*','👤 *Alumno:* '+name,'','Agregá cada semana a tu Google Calendar tocando su enlace:'];
   for(let i=0;i<count;i++){
    const sunday=new Date(firstMonday);
    sunday.setUTCDate(firstMonday.getUTCDate()+i*7-1);
-   // Domingo 19:00 Argentina = domingo 22:00 UTC.
-   sunday.setUTCHours(22,0,0,0);
+   sunday.setUTCHours(22,0,0,0); // Domingo 19:00 Argentina
    const end=new Date(sunday.getTime()+15*60000);
    const targets=Object.entries(plan).filter(([,v])=>Array.isArray(v)&&v[i]!==null&&v[i]!==undefined&&v[i]!=='').map(([ex,v])=>ex+': '+(Number(v)===0?'Sin carga programada':String(v).replace('.',',')+' kg'));
-   const description=['MOVETE! · Entrenar es salud','Objetivos de fuerza · Semana '+(i+1),'Alumno: '+name,'',...targets,'','Objetivos orientativos sujetos a la evolución del entrenamiento.'].join('\n');
-   events.push('BEGIN:VEVENT','UID:movete-'+encodeURIComponent(key(name)).replace(/%/g,'')+'-'+m+'-s'+(i+1)+'@movete','DTSTAMP:'+now,'DTSTART:'+stamp(sunday),'DTEND:'+stamp(end),'SUMMARY:'+escapeIcs('MOVETE! · Fuerza · Semana '+(i+1)),'DESCRIPTION:'+escapeIcs(description),'BEGIN:VALARM','ACTION:DISPLAY','DESCRIPTION:'+escapeIcs('MOVETE! · Objetivos de fuerza · Semana '+(i+1)),'TRIGGER:PT0M','END:VALARM','END:VEVENT');
+   const description=['MOVETE! · Entrenar es salud','Objetivos de fuerza · Semana '+(i+1),'Alumno: '+name,'',...(targets.length?targets:['Sin cargas programadas']),'','Objetivos orientativos sujetos a la evolución del entrenamiento.'].join('\n');
+   const url='https://calendar.google.com/calendar/render?'+new URLSearchParams({action:'TEMPLATE',text:'MOVETE! · Fuerza · Semana '+(i+1),dates:stamp(sunday)+'/'+stamp(end),details:description,ctz:'America/Argentina/Buenos_Aires'}).toString();
+   lines.push('','*Semana '+(i+1)+' · Domingo 19:00*',...targets,url);
   }
-  const ics=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//MOVETE//Plan mensual de fuerza//ES','CALSCALE:GREGORIAN','METHOD:PUBLISH',...events,'END:VCALENDAR'].join('\r\n')+'\r\n';
-  const blob=new Blob([ics],{type:'text/calendar;charset=utf-8'});
-  const filename='MOVETE-plan-'+m+'-'+key(name).replace(/[^a-z0-9]+/g,'-')+'.ics';
-  const file=new File([blob],filename,{type:'text/calendar'});
-  // En celulares compatibles abre la hoja nativa para compartir, sin descargar primero.
-  if(navigator.share && navigator.canShare && navigator.canShare({files:[file]})){
-   try{
-    await navigator.share({files:[file],title:'MOVETE! · Plan de fuerza · '+name});
-    status('Plan de calendario compartido. El alumno debe importar el archivo en su calendario.');
-    return;
-   }catch(e){
-    if(e.name==='AbortError'){status('Compartir cancelado.');return;}
-   }
-  }
-  // Alternativa para navegadores que no admiten compartir archivos.
-  const url=URL.createObjectURL(blob);
-  const link=document.createElement('a');link.href=url;link.download=filename;
-  document.body.appendChild(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),10000);
-  status('Tu navegador no permite compartir directamente archivos de calendario. Se descargó el archivo .ics para enviarlo por WhatsApp como documento.');
+  lines.push('','Cada enlace abre Google Calendar para confirmar el recordatorio. No se agregan eventos automáticamente.');
+  window.open('https://wa.me/?text='+encodeURIComponent(lines.join('\n')),'_blank','noopener');
+  status('Se abrió WhatsApp con los enlaces de Google Calendar para '+count+' semanas. El alumno debe confirmar cada evento.');
  }
  $('#planCalendar').onclick=calendarExport;
  $('#planMonth').onchange=load;
