@@ -21,37 +21,16 @@ seed.push(...(window.MOVETE_AUGUST_2026 || []));
 
 let extra=JSON.parse(localStorage.getItem('movete_records')||'[]');
 let manualStudents=JSON.parse(localStorage.getItem('movete_students')||'[]');
-// Mostrar cada registro una sola vez, incluso si una actualización vuelve a cargarlo.
-function uniqueRecords(items){
- const seen=new Set();
- return items.filter(r=>{
-  const fingerprint=JSON.stringify([normalizeRecordText(r.student_name),normalizeRecordText(r.exercise),String(r.date||''),Number(r.weight_kg),Number(r.reps),Number(r.sets),String(r.notes||'')]);
-  if(seen.has(fingerprint))return false;
-  seen.add(fingerprint);return true;
- });
-}
-// Vista protegida: una misma carga importada repetidamente en el mismo día
-// se presenta una sola vez. Los registros originales permanecen intactos.
-function visibleRecords(items){
- const seen=new Set();
- return items.filter(r=>{
-  const stamp=String(r.date||'').slice(0,10);
-  const signature=JSON.stringify([normalizeRecordText(r.student_name),normalizeRecordText(r.exercise),stamp,Number(r.weight_kg),Number(r.reps),Number(r.sets),normalizeRecordText(r.notes)]);
-  if(seen.has(signature))return false;
-  seen.add(signature);return true;
- });
-}
-function normalizeRecordText(s){return String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim()}
-let records=uniqueRecords([...seed,...extra]);
+let records=[...seed,...extra];
 const qs=s=>document.querySelector(s);
 const fmtDate=s=>new Date(s).toLocaleDateString('es-AR');
-const allStudents=()=>[...new Set([...visibleRecords(records).map(r=>r.student_name),...manualStudents])].sort((a,b)=>a.localeCompare(b,'es'));
+const allStudents=()=>[...new Set([...records.map(r=>r.student_name),...manualStudents])].sort((a,b)=>a.localeCompare(b,'es'));
 function show(id){['home','profile','exercise','form'].forEach(x=>qs('#'+x).classList.toggle('hidden',x!==id));window.scrollTo(0,0)}
-function lastFor(name){return visibleRecords(records).filter(r=>r.student_name===name).sort((a,b)=>b.date.localeCompare(a.date))[0]}
+function lastFor(name){return records.filter(r=>r.student_name===name).sort((a,b)=>b.date.localeCompare(a.date))[0]}
 function esc(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
 function renderHome(){
  const normalizeSearch=s=>String(s).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim(); const q=normalizeSearch(qs('#search').value); const names=allStudents().filter(n=>normalizeSearch(n).includes(q));
- qs('#summary').textContent=`${allStudents().length} alumnos · ${visibleRecords(records).length} registros de carga`;
+ qs('#summary').textContent=`${allStudents().length} alumnos · ${records.length} registros de carga`;
  qs('#students').innerHTML=names.map(n=>{let l=lastFor(n);return `<div class="card student student-link" role="button" tabindex="0" data-student="${esc(n)}"><div><b>${esc(n)}</b><div class="meta">${l?`Último: ${fmtDate(l.date)} · ${esc(l.exercise)} · ${l.weight_kg} kg`:'Sin cargas todavía'}</div></div><div>›</div></div>`}).join('');
 }
 qs('#search').addEventListener('input',renderHome);
@@ -75,7 +54,7 @@ document.addEventListener('keydown', function(ev){
 });
 
 function profile(name){
- const rs=visibleRecords(records).filter(r=>r.student_name===name).sort((a,b)=>b.date.localeCompare(a.date));
+ const rs=records.filter(r=>r.student_name===name).sort((a,b)=>b.date.localeCompare(a.date));
  const ex=[...new Set(rs.map(r=>r.exercise))];
  qs('#profile').innerHTML=`<button class="ghost back" type="button" data-action="home">← Alumnos</button><h2>${esc(name)}</h2>
  <div class="card"><span class="badge">Últimos registros</span>${rs.slice(0,2).map(r=>`<div class="record"><strong>${esc(r.exercise)}</strong> · ${r.weight_kg} kg · ${r.reps} reps × ${r.sets} series<div class="meta">${fmtDate(r.date)}${r.notes?' · '+esc(r.notes):''}</div></div>`).join('<hr style="border-color:#2b302d">')||'<div class="note">Sin registros.</div>'}</div>
@@ -83,7 +62,7 @@ function profile(name){
  <button class="primary big" type="button" data-action="form" data-student="${esc(name)}" data-exercise="">+ Registrar carga</button>`; show('profile');
 }
 function exerciseView(name,ex){
- const rs=visibleRecords(records).filter(r=>r.student_name===name&&r.exercise===ex).sort((a,b)=>a.date.localeCompare(b.date));
+ const rs=records.filter(r=>r.student_name===name&&r.exercise===ex).sort((a,b)=>a.date.localeCompare(b.date));
  const last=rs[rs.length-1];
  qs('#exercise').innerHTML=`<button class="ghost back" type="button" data-action="profile" data-student="${esc(name)}">← ${esc(name)}</button><h2>${esc(ex)}</h2>
  <div class="card">${last?`<b>Último registro</b><div style="font-size:24px;margin-top:5px">${last.weight_kg} kg</div><div class="meta">${last.reps} reps × ${last.sets} series · ${fmtDate(last.date)}</div>`:'<div class="note">Todavía no hay registros para este ejercicio.</div>'}</div>
@@ -111,7 +90,7 @@ function updateLastExerciseRecord(name){
  if(!sel||!box)return;
  const ex=sel.value;
  if(ex==='__otro__'){box.innerHTML='<div class="meta">Ejercicio nuevo: todavía no tiene registros.</div>';return}
- const rs=visibleRecords(records).filter(r=>r.student_name===name&&r.exercise===ex).sort((a,b)=>b.date.localeCompare(a.date));
+ const rs=records.filter(r=>r.student_name===name&&r.exercise===ex).sort((a,b)=>b.date.localeCompare(a.date));
  const last=rs[0];
  box.innerHTML=last
    ? `<b>Último ${esc(ex)}</b><div style="font-size:20px;margin-top:4px">${last.weight_kg} kg · ${last.reps} reps × ${last.sets} series</div><div class="meta">${fmtDate(last.date)}${last.notes?' · '+esc(last.notes):''}</div>`
@@ -148,7 +127,7 @@ function saveRecord(name){
  let w=parseFloat(qs('#fw').value),reps=parseInt(qs('#fr').value),sets=parseInt(qs('#fs').value),date=qs('#fd').value,notes=qs('#fn').value.trim();
  if(!Number.isFinite(w)||!reps||!sets||!date){alert('Completá peso, repeticiones, series y fecha.');return}
  let r={student_name:name,student_key:name.toLowerCase(),exercise:ex,exercise_raw:ex,category:'General',weight_kg:w,reps,sets,notes,date,student_id_raw:'app'};
- extra.push(r);localStorage.setItem('movete_records',JSON.stringify(extra));records=uniqueRecords([...seed,...extra]);profile(name);
+ extra.push(r);localStorage.setItem('movete_records',JSON.stringify(extra));records=[...seed,...extra];profile(name);
 }
 function exportBackup(){
  const payload={
@@ -166,7 +145,7 @@ function exportBackup(){
  document.body.appendChild(a);a.click();a.remove();
  setTimeout(()=>URL.revokeObjectURL(url),1000);
 
-}
+seed.push(...(window.MOVETE_SEPTEMBER_24_2026 || [])); records=[...seed,...extra]; renderHome();}
 function importBackup(){
  const input=qs('#importFile');
  input.value='';
@@ -183,7 +162,7 @@ qs('#importFile').addEventListener('change',function(){
      extra=data.added_records; manualStudents=data.manual_students;
      localStorage.setItem('movete_records',JSON.stringify(extra));
      localStorage.setItem('movete_students',JSON.stringify(manualStudents));
-     records=uniqueRecords([...seed,...extra]); renderHome(); show('home');
+     records=[...seed,...extra]; renderHome(); show('home');
      alert('Copia restaurada correctamente.');
    }catch(e){alert('No pude restaurar esa copia: '+e.message)}
  };
@@ -247,7 +226,7 @@ const aliases = new Map([['adrian lambert','Adriana Lambert'],['adriana lambert'
 for (const r of [...seed,...extra]) { const canonical=aliases.get(normalizeName(r.student_name)); if(canonical){r.student_name=canonical;r.student_key=normalizeName(canonical).replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');} }
 manualStudents=manualStudents.map(n=>aliases.get(normalizeName(n))||n);
 localStorage.setItem('movete_records',JSON.stringify(extra)); localStorage.setItem('movete_students',JSON.stringify(manualStudents));
-records=uniqueRecords([...seed,...extra]); renderHome();
+records=[...seed,...extra]; renderHome();
 
 aliases.set('ana bernatd','Ana Berard');
 aliases.set('ana berard','Ana Berard');
@@ -258,4 +237,4 @@ aliases.set('ana hidalgo','Ana Hidalgo');
 for(let i=seed.length-1;i>=0;i--){const r=seed[i];if(normalizeName(r.student_name)==='marcela golinelli'&&String(r.date).startsWith('2026-09-28')&&r.exercise==='Hip Thrust')seed.splice(i,1)}
 for(const r of [...seed,...extra]){const canonical=aliases.get(normalizeName(r.student_name));if(canonical){r.student_name=canonical;r.student_key=normalizeName(canonical).replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')}}
 manualStudents=manualStudents.map(n=>aliases.get(normalizeName(n))||n);
-localStorage.setItem('movete_records',JSON.stringify(extra));localStorage.setItem('movete_students',JSON.stringify(manualStudents));records=uniqueRecords([...seed,...extra]);renderHome();
+localStorage.setItem('movete_records',JSON.stringify(extra));localStorage.setItem('movete_students',JSON.stringify(manualStudents));records=[...seed,...extra];renderHome();
