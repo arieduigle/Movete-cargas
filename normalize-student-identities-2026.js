@@ -18,7 +18,7 @@
    if(target){r.student_name=target;r.student_key=slug(target);}
  }
  manualStudents=[...new Set(manualStudents.map(n=>canonical.get(key(n))||n))];
- localStorage.setItem('movete_records',JSON.stringify(extra));
- localStorage.setItem('movete_students',JSON.stringify(manualStudents));
+ 
+ 
  records=[...seed,...extra];renderHome();
 })();

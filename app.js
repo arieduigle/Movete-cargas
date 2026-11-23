@@ -127,7 +127,9 @@ function saveRecord(name){
  let w=parseFloat(qs('#fw').value),reps=parseInt(qs('#fr').value),sets=parseInt(qs('#fs').value),date=qs('#fd').value,notes=qs('#fn').value.trim();
  if(!Number.isFinite(w)||!reps||!sets||!date){alert('Completá peso, repeticiones, series y fecha.');return}
  let r={student_name:name,student_key:name.toLowerCase(),exercise:ex,exercise_raw:ex,category:'General',weight_kg:w,reps,sets,notes,date,student_id_raw:'app'};
- extra.push(r);localStorage.setItem('movete_records',JSON.stringify(extra));records=[...seed,...extra];profile(name);
+ const same=(a,b)=>normalizeName(a.student_name)===normalizeName(b.student_name)&&normalizeName(a.exercise)===normalizeName(b.exercise)&&String(a.date).slice(0,10)===String(b.date).slice(0,10)&&Number(a.weight_kg)===Number(b.weight_kg)&&Number(a.reps)===Number(b.reps)&&Number(a.sets)===Number(b.sets)&&String(a.notes||'').trim()===String(b.notes||'').trim();
+ if([...seed,...extra].some(existing=>same(existing,r))){alert('Esta carga ya existe en el historial. No se agregó nuevamente.');profile(name);return;}
+ extra.push(r);localStorage.setItem('movete_records',JSON.stringify(extra));records=window.moveteStableRecords?window.moveteStableRecords():[...seed,...extra];profile(name);
 }
 function exportBackup(){
  const payload={
@@ -135,7 +137,8 @@ function exportBackup(){
    version:1,
    exported_at:new Date().toISOString(),
    added_records:extra,
-   manual_students:manualStudents
+   manual_students:manualStudents,
+   monthly_plans:JSON.parse(localStorage.getItem('movete_monthly_plans_v1')||'{}')
  };
  const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
  const url=URL.createObjectURL(blob);
@@ -144,8 +147,7 @@ function exportBackup(){
  a.download='MOVETE_backup_'+new Date().toISOString().slice(0,10)+'.json';
  document.body.appendChild(a);a.click();a.remove();
  setTimeout(()=>URL.revokeObjectURL(url),1000);
-
-seed.push(...(window.MOVETE_SEPTEMBER_24_2026 || [])); records=[...seed,...extra]; renderHome();}
+}
 function importBackup(){
  const input=qs('#importFile');
  input.value='';
@@ -162,7 +164,8 @@ qs('#importFile').addEventListener('change',function(){
      extra=data.added_records; manualStudents=data.manual_students;
      localStorage.setItem('movete_records',JSON.stringify(extra));
      localStorage.setItem('movete_students',JSON.stringify(manualStudents));
-     records=[...seed,...extra]; renderHome(); show('home');
+     if(data.monthly_plans&&typeof data.monthly_plans==='object'&&!Array.isArray(data.monthly_plans))localStorage.setItem('movete_monthly_plans_v1',JSON.stringify(data.monthly_plans));
+     records=window.moveteStableRecords?window.moveteStableRecords():[...seed,...extra]; renderHome(); show('home');
      alert('Copia restaurada correctamente.');
    }catch(e){alert('No pude restaurar esa copia: '+e.message)}
  };
@@ -225,7 +228,7 @@ const normalizeName = value => String(value).normalize('NFD').replace(/[\u0300-\
 const aliases = new Map([['adrian lambert','Adriana Lambert'],['adriana lambert','Adriana Lambert'],['ana bernatd','Ana Bernhardt'],['ana berard','Ana Bernhardt'],['flor casares','Flor Placeres'],['gergina','Georgina'],['gergina cavaglia','Georgina Cavaglia'],['mel coyle','Mel Gonzalez'],['mel gonzales','Mel Gonzalez'],['mercedes alcanta','Mercedes Alcántara'],['mercedes alcantara','Mercedes Alcántara'],['sil','Silvana Vasques'],['sil vasquez','Silvana Vasques'],['silvana vasquez','Silvana Vasques'],['silvana vasques','Silvana Vasques']]);
 for (const r of [...seed,...extra]) { const canonical=aliases.get(normalizeName(r.student_name)); if(canonical){r.student_name=canonical;r.student_key=normalizeName(canonical).replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');} }
 manualStudents=manualStudents.map(n=>aliases.get(normalizeName(n))||n);
-localStorage.setItem('movete_records',JSON.stringify(extra)); localStorage.setItem('movete_students',JSON.stringify(manualStudents));
+ 
 records=[...seed,...extra]; renderHome();
 
 aliases.set('ana bernatd','Ana Berard');
@@ -237,4 +240,4 @@ aliases.set('ana hidalgo','Ana Hidalgo');
 for(let i=seed.length-1;i>=0;i--){const r=seed[i];if(normalizeName(r.student_name)==='marcela golinelli'&&String(r.date).startsWith('2026-09-28')&&r.exercise==='Hip Thrust')seed.splice(i,1)}
 for(const r of [...seed,...extra]){const canonical=aliases.get(normalizeName(r.student_name));if(canonical){r.student_name=canonical;r.student_key=normalizeName(canonical).replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')}}
 manualStudents=manualStudents.map(n=>aliases.get(normalizeName(n))||n);
-localStorage.setItem('movete_records',JSON.stringify(extra));localStorage.setItem('movete_students',JSON.stringify(manualStudents));records=[...seed,...extra];renderHome();
+records=[...seed,...extra];renderHome();
